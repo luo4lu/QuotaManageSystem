@@ -1,6 +1,6 @@
-use actix_web::{web, HttpResponse, post, Responder, put, get};
-use serde::{Serialize, Deserialize};
 use crate::response::ResponseBody;
+use actix_web::{get, post, put, web, HttpResponse, Responder};
+use serde::{Deserialize, Serialize};
 
 // new meta
 
@@ -38,7 +38,34 @@ pub async fn get_meta() -> impl Responder {
         code: String::from(""),
         public: String::from(""),
         secret: String::from(""),
-        seed: String::from("")
+        seed: String::from(""),
     })))
 }
 
+#[get("/api/quota")]
+pub async fn get_quota() -> impl Responder {
+    HttpResponse::Ok().json(ResponseBody::<String>::new_success(Some(String::from(
+        "dadaswsda",
+    ))))
+}
+
+#[derive(Deserialize, Debug)]
+pub struct NewQuota {
+    count: i32,
+    amount: i64,
+}
+/*let mut NewQuotaReq = vec![NewQuota{count: 1, amount: 800000000},NewQuota{count: 2, amount: 900000000}];
+/impl NewQuota{
+    pub fn new_vec() ->Vec<NewQuota>{
+        let NewQuotaReq: Vec<NewQuota> = Vec::new();
+        NewQuotaReq = vec![NewQuota{count: 1, amount: 800000000},NewQuota{count: 2, amount: 900000000}];
+        NewQuotaReq
+    }
+}*/
+
+#[post("/api/quota")]
+pub async fn new_quota(vec: web::Json<Vec<NewQuota>>) -> impl Responder {
+    println!("{:?}", vec);
+    let v = vec![0x00001, 0x00002, 0x00003];
+    HttpResponse::Ok().json(ResponseBody::new_success(Some(v)))
+}
