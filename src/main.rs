@@ -12,6 +12,7 @@ async fn main() -> std::io::Result<()> {
             .service(admin_meta::get_meta)
             .service(admin_meta::get_quota)
             .service(admin_meta::new_quota)
+            .service(admin_meta::delete_quota)
     })
     .bind("127.0.0.1:8088")?
     .run()
