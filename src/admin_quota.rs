@@ -16,14 +16,6 @@ pub struct NewQuota {
     amount: i64,
 }
 
-/*impl NewQuota{
-    pub fn new_vec() ->Vec<NewQuota>{
-        let NewQuotaReq: Vec<NewQuota> = Vec::new();
-        NewQuotaReq = vec![NewQuota{count: 1, amount: 800000000},NewQuota{count: 2, amount: 900000000}];
-        NewQuotaReq
-    }
-}*/
-
 #[post("/api/quota")]
 pub async fn new_quota(vec: web::Json<Vec<NewQuota>>) -> impl Responder {
     format!("{:?}", vec);
