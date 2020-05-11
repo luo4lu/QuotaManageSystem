@@ -9,11 +9,11 @@ pub struct ResponseBody<T> {
 }
 
 impl<T> ResponseBody<T> {
-    pub fn new_success(data_t: Option<T>) -> Self {
+    pub fn new_success(data: Option<T>) -> Self {
         ResponseBody {
             code: 0,
             message: String::from("success"),
-            data: data_t,
+            data,
         }
     }
 }
