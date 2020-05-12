@@ -1,6 +1,6 @@
-use actix_web::{web, HttpResponse, post, Responder, put, get};
-use serde::{Serialize, Deserialize};
 use crate::response::ResponseBody;
+use actix_web::{get, post, put, web, HttpResponse, Responder};
+use serde::{Deserialize, Serialize};
 
 // new meta
 
@@ -38,7 +38,6 @@ pub async fn get_meta() -> impl Responder {
         code: String::from(""),
         public: String::from(""),
         secret: String::from(""),
-        seed: String::from("")
+        seed: String::from(""),
     })))
 }
-
