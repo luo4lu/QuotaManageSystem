@@ -8,6 +8,7 @@ edition = "2018"
 
 [dependencies]
 tokio = { version = "0.2", features = ["fs"] }
+rust-crypto = "0.2.36"
 hex = "0.4"
 actix-web = "2.0"
 actix-rt = "1.0"
