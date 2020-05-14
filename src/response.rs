@@ -16,4 +16,12 @@ impl<T> ResponseBody<T> {
             data,
         }
     }
+
+    pub fn new_json_parse_error() -> Self {
+        ResponseBody {
+            code: 90001,
+            message: String::from("json parse error."),
+            data: None,
+        }
+    }
 }
