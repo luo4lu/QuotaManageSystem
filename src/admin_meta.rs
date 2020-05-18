@@ -14,7 +14,7 @@ use tokio::prelude::*;
 // new meta
 
 #[post("/api/admin/meta")]
-pub async fn new_meta(config: web::Data<ConfigPath>) -> impl Responder {
+pub async fn new_cert(config: web::Data<ConfigPath>) -> impl Responder {
     //decline a rand number object
     let mut rng = thread_rng();
     //generate Serialize structure data
@@ -58,7 +58,7 @@ pub struct UpdateMetaRequest {
 }
 
 #[put("/api/admin/meta")]
-pub async fn update_meta(
+pub async fn update_cert(
     config: web::Data<ConfigPath>,
     req: web::Json<UpdateMetaRequest>,
 ) -> impl Responder {
@@ -78,7 +78,7 @@ pub async fn update_meta(
     {
         Ok(s) => s,
         Err(e) => {
-            println!("keypair conversion failed:{:?}", e);
+            println!("keypair generate failed:{:?}", e);
             return HttpResponse::Ok().json(ResponseBody::<()>::new_str_conver_error());
         }
     };
@@ -113,7 +113,7 @@ pub struct GetMetaResponse {
 }
 
 #[get("/api/admin/meta")]
-pub async fn get_meta(config: web::Data<ConfigPath>) -> impl Responder {
+pub async fn get_cert(config: web::Data<ConfigPath>) -> impl Responder {
     //read file
     let mut file = match File::open(&config.meta_path).await {
         Ok(f) => f,
@@ -132,7 +132,7 @@ pub async fn get_meta(config: web::Data<ConfigPath>) -> impl Responder {
         }
     };
     //Deserialize to the specified data format
-    let deserialize: Keypair<
+    let keypair_value: Keypair<
         [u8; 32],
         Sha3,
         dislog_hal_sm2::PointInner,
@@ -140,16 +140,16 @@ pub async fn get_meta(config: web::Data<ConfigPath>) -> impl Responder {
     > = match serde_json::from_str(&contents) {
         Ok(de) => de,
         Err(e) => {
-            println!("Keypair conversion failed:{:?}", e);
+            println!("Keypair generate failed:{:?}", e);
             return HttpResponse::Ok().json(ResponseBody::<()>::new_str_conver_error());
         }
     };
 
     //format conversion to string
-    let secret_str = deserialize.get_secret_key().to_bytes().encode_hex();
-    let code_str = deserialize.get_code().encode_hex();
-    let seed_str = deserialize.get_seed().encode_hex();
-    let public_str = deserialize.get_public_key().to_bytes().encode_hex();
+    let secret_str = keypair_value.get_secret_key().to_bytes().encode_hex();
+    let code_str = keypair_value.get_code().encode_hex();
+    let seed_str = keypair_value.get_seed().encode_hex();
+    let public_str = keypair_value.get_public_key().to_bytes().encode_hex();
 
     HttpResponse::Ok().json(ResponseBody::new_success(Some(GetMetaResponse {
         code: code_str,
