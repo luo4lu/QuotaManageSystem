@@ -2,6 +2,7 @@ use actix_web::{App, HttpServer};
 
 mod admin_meta;
 mod admin_quota;
+pub mod entity;
 pub mod response;
 
 #[actix_rt::main]
@@ -15,7 +16,7 @@ async fn main() -> std::io::Result<()> {
             .service(admin_quota::new_quota)
             .service(admin_quota::delete_quota)
     })
-    .bind("127.0.0.1:8088")?
+    .bind("0.0.0.0:8000")?
     .run()
     .await
 }
