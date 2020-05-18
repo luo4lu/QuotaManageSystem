@@ -16,7 +16,7 @@ async fn main() -> std::io::Result<()> {
             .service(admin_quota::new_quota)
             .service(admin_quota::delete_quota)
     })
-    .bind("0.0.0.0:8000")?
+    .bind("127.0.0.1:8088")?
     .run()
     .await
 }
