@@ -1,6 +1,6 @@
 use super::quota::{Quota, QUOTA_LEN};
 use dislog_hal::Bytes;
-use kv_object::kv_object::{KVWrapperT, KvWrapper};
+use kv_object::kv_object::{KVBody, KVObject};
 use kv_object::prelude::AttrProxy;
 use kv_object::sm2::CertificateSm2;
 use kv_object::KVObjectError;
@@ -79,9 +79,9 @@ impl AttrProxy for Currency {
     }
 }
 
-impl KVWrapperT for Currency {}
+impl KVBody for Currency {}
 
-pub type CurrencyWrapper = KvWrapper<Currency>;
+pub type CurrencyWrapper = KVObject<Currency>;
 
 #[cfg(test)]
 mod tests {
@@ -93,7 +93,7 @@ mod tests {
         use super::{Currency, CurrencyWrapper};
         use asymmetric_crypto::prelude::Keypair;
         use kv_object::kv_object::MsgType;
-        use kv_object::prelude::KVObject;
+        use kv_object::prelude::KValueObject;
         use kv_object::sm2::KeyPairSm2;
         use rand::thread_rng;
 

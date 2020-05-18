@@ -1,5 +1,5 @@
 use dislog_hal::Bytes;
-use kv_object::kv_object::{KVWrapperT, KvWrapper};
+use kv_object::kv_object::{KVBody, KVObject};
 use kv_object::prelude::AttrProxy;
 use kv_object::sm2::CertificateSm2;
 use kv_object::KVObjectError;
@@ -105,6 +105,6 @@ impl AttrProxy for Quota {
     }
 }
 
-impl KVWrapperT for Quota {}
+impl KVBody for Quota {}
 
-pub type QuotaWrapper = KvWrapper<Quota>;
+pub type QuotaWrapper = KVObject<Quota>;

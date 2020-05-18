@@ -4,7 +4,7 @@ use chrono::prelude::Local;
 use core::convert::AsRef;
 use dislog_hal::Bytes;
 use dislog_hal::Hasher;
-use kv_object::kv_object::{KVWrapperT, KvWrapper};
+use kv_object::kv_object::{KVBody, KVObject};
 use kv_object::prelude::AttrProxy;
 use kv_object::sm2::CertificateSm2;
 use kv_object::KVObjectError;
@@ -82,9 +82,9 @@ impl AttrProxy for Issue {
     }
 }
 
-impl KVWrapperT for Issue {}
+impl KVBody for Issue {}
 
-pub type IssueWrapper = KvWrapper<Issue>;
+pub type IssueWrapper = KVObject<Issue>;
 
 impl Issue {
     /*
@@ -129,7 +129,7 @@ mod tests {
         use super::{Issue, IssueWrapper};
         use asymmetric_crypto::prelude::Keypair;
         use kv_object::kv_object::MsgType;
-        use kv_object::prelude::KVObject;
+        use kv_object::prelude::KValueObject;
         use kv_object::sm2::KeyPairSm2;
         use rand::thread_rng;
 
@@ -159,7 +159,7 @@ mod tests {
         use super::Issue;
         use asymmetric_crypto::prelude::Keypair;
         use kv_object::kv_object::MsgType;
-        use kv_object::prelude::KVObject;
+        use kv_object::prelude::KValueObject;
         use kv_object::sm2::KeyPairSm2;
         use rand::thread_rng;
 
