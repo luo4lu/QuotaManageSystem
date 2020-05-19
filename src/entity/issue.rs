@@ -21,6 +21,10 @@ impl Issue {
     pub fn new(currencys: Vec<(u64, u64)>) -> Self {
         Self { currencys }
     }
+
+    pub fn get_issue(&self) -> &Vec<(u64, u64)> {
+        &self.currencys
+    }
 }
 
 impl Bytes for Issue {
@@ -35,11 +39,11 @@ impl Bytes for Issue {
         let mut currencys = Vec::<(u64, u64)>::new();
         let mut pos_i = 0;
         while pos_i < bytes.len() {
-            let mut face_value_ = [0u8; 8];
+            let mut value_ = [0u8; 8];
             let mut amount_ = [0u8; 8];
-            face_value_.clone_from_slice(&bytes[..8]);
+            value_.clone_from_slice(&bytes[..8]);
             amount_.clone_from_slice(&bytes[8..16]);
-            currencys.push((u64::from_le_bytes(face_value_), u64::from_le_bytes(amount_)));
+            currencys.push((u64::from_le_bytes(value_), u64::from_le_bytes(amount_)));
 
             pos_i += 16;
         }
@@ -87,9 +91,7 @@ impl KVBody for Issue {}
 pub type IssueWrapper = KVObject<Issue>;
 
 impl Issue {
-    /*
-    发行系统根据自身证书对发行批准信息进行额度分发
-    */
+    /// 发行系统根据自身证书对发行批准信息进行额度分发
     pub fn quota_distribution(&self, cert: &CertificateSm2) -> Vec<Quota> {
         let mut ret = Vec::<Quota>::new();
 
@@ -98,22 +100,24 @@ impl Issue {
         let mut hasher = Sm3::default();
         hasher.update(&self.to_bytes()[..]);
         let trade_hash = hasher.finalize();
-        for (face_value, amount) in self.currencys.iter() {
-            let dt = Local::now();
-            let timep = dt.timestamp_millis();
+        for (value, amount) in self.currencys.iter() {
+            let now = Local::now();
+            let timestamp = now.timestamp_millis();
 
+            // 在循环中为每张货币生成唯一ID,
+            // ID = Hasher[ 时间戳 | 面额 | 发行系统标识(证书) | 交易哈希 | 随机值 ]
             for _ in 0..*amount {
-                let mut ary = [0u8; 32];
-                rng.fill_bytes(&mut ary);
+                let mut arr = [0u8; 32];
+                rng.fill_bytes(&mut arr);
                 let mut hasher = Sm3::default();
-                hasher.update(timep.to_le_bytes());
-                hasher.update(face_value.to_le_bytes());
+                hasher.update(timestamp.to_le_bytes());
+                hasher.update(value.to_le_bytes());
                 hasher.update(cert.to_bytes().as_ref());
                 hasher.update(trade_hash);
-                hasher.update(ary);
+                hasher.update(arr);
                 let id = hasher.finalize();
 
-                ret.push(Quota::new(id, timep, *face_value, cert.clone(), trade_hash));
+                ret.push(Quota::new(id, timestamp, *value, cert.clone(), trade_hash));
             }
         }
 
@@ -182,16 +186,16 @@ mod tests {
 
             let sign_bytes = quota.to_bytes(&keypair_sm2).unwrap();
 
-            //println!("sigture: {:?}", sign_bytes);
+            println!("sigture: {:?}", sign_bytes);
 
             let serialized = serde_json::to_string(&quota).unwrap();
-            //println!("serialized = {}", serialized);
+            println!("serialized = {}", serialized);
 
             let deserialized: QuotaWrapper = serde_json::from_str(&serialized).unwrap();
-            //println!("deserialized = {:?}", deserialized);
+            println!("deserialized = {:?}", deserialized);
 
             let deserialized_obj: Quota = deserialized.get_body().clone();
-            //println!("deserialized_obj = {:?}", deserialized_obj);
+            println!("deserialized_obj = {:?}", deserialized_obj);
         }
     }
 }

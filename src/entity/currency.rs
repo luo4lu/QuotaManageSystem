@@ -1,4 +1,4 @@
-use super::quota::{Quota, QUOTA_LEN};
+use super::quota::Quota;
 use dislog_hal::Bytes;
 use kv_object::kv_object::{KVBody, KVObject};
 use kv_object::prelude::AttrProxy;
@@ -15,15 +15,23 @@ pub struct Currency {
 }
 
 impl Currency {
+    pub const CURRENCY_LEN: usize = Quota::QUOTA_LEN + 33;
+
     pub fn new(quota: Quota, cert: CertificateSm2) -> Self {
         Self {
             quota_info: quota,
             wallet_cert: cert,
         }
     }
-}
 
-pub const CURRENCY_LEN: usize = QUOTA_LEN + 33;
+    pub fn get_quota_info(&self) -> &Quota {
+        &self.quota_info
+    }
+
+    pub fn get_wallet_cert(&self) -> &CertificateSm2 {
+        &self.wallet_cert
+    }
+}
 
 impl Bytes for Currency {
     type BytesType = Vec<u8>;
@@ -31,13 +39,13 @@ impl Bytes for Currency {
     type Error = KVObjectError;
 
     fn from_bytes(bytes: &[u8]) -> Result<Self, Self::Error> {
-        if bytes.len() != CURRENCY_LEN {
+        if bytes.len() != Self::CURRENCY_LEN {
             return Err(KVObjectError::DeSerializeError);
         }
 
-        let quota_info =
-            Quota::from_bytes(&bytes[..QUOTA_LEN]).map_err(|_| KVObjectError::DeSerializeError)?;
-        let wallet_cert = CertificateSm2::from_bytes(&bytes[QUOTA_LEN..CURRENCY_LEN])
+        let quota_info = Quota::from_bytes(&bytes[..Quota::QUOTA_LEN])
+            .map_err(|_| KVObjectError::DeSerializeError)?;
+        let wallet_cert = CertificateSm2::from_bytes(&bytes[Quota::QUOTA_LEN..Self::CURRENCY_LEN])
             .map_err(|_| KVObjectError::DeSerializeError)?;
 
         Ok(Self {
