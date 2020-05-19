@@ -29,7 +29,7 @@ impl<T> ResponseBody<T> {
     ///作为文件类错误相关返回
     pub fn new_file_error() -> Self {
         ResponseBody {
-            code: 9002,
+            code: 90002,
             message: String::from("file open or write or read error."),
             data: None,
         }
@@ -38,7 +38,7 @@ impl<T> ResponseBody<T> {
     ///作为字符转换相关产生的错误返回
     pub fn new_str_conver_error() -> Self {
         ResponseBody {
-            code: 9003,
+            code: 90003,
             message: String::from("char conversion error"),
             data: None,
         }

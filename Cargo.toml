@@ -7,6 +7,8 @@ edition = "2018"
 # See more keys and their definitions at https://doc.rust-lang.org/cargo/reference/manifest.html
 
 [dependencies]
+log = { version = "0.4.5", features = ["std"] }
+simple_logger = "0.5"
 tokio = { version = "0.2", features = ["fs"] }
 rust-crypto = "0.2.36"
 hex = "0.4"
