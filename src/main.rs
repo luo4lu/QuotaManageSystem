@@ -2,6 +2,7 @@ use actix_web::{App, HttpServer};
 
 mod admin_meta;
 mod admin_quota;
+pub mod entity;
 pub mod response;
 
 #[actix_rt::main]
