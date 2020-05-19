@@ -45,7 +45,7 @@ impl Bytes for Quota {
     type Error = KVObjectError;
 
     fn from_bytes(bytes: &[u8]) -> Result<Self, Self::Error> {
-        if bytes.len() % QUOTA_LEN != 0 {
+        if bytes.len() != QUOTA_LEN {
             return Err(KVObjectError::DeSerializeError);
         }
         let mut id_ = [0u8; 32];

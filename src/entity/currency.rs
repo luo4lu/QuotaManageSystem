@@ -31,7 +31,7 @@ impl Bytes for Currency {
     type Error = KVObjectError;
 
     fn from_bytes(bytes: &[u8]) -> Result<Self, Self::Error> {
-        if bytes.len() % CURRENCY_LEN != 0 {
+        if bytes.len() != CURRENCY_LEN {
             return Err(KVObjectError::DeSerializeError);
         }
 
