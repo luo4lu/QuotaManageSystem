@@ -13,7 +13,7 @@ use serde::{Deserialize, Serialize};
 
 #[derive(Debug, Clone, Serialize, Deserialize)]
 pub struct Issue {
-    // Vec<面值, 数目>
+    /// Vec<面值, 数目>
     currencys: Vec<(u64, u64)>,
 }
 

@@ -7,10 +7,15 @@ use serde::{Deserialize, Serialize};
 
 #[derive(Debug, Clone, Serialize, Deserialize)]
 pub struct Quota {
+    /// 唯一标识
     id: [u8; 32],
+    /// 时间戳
     timep: i64,
+    /// 面额
     face_value: u64,
+    /// 发行系统证书
     issue_cert: CertificateSm2,
+    /// 交易哈希
     trade_hash: [u8; 32],
 }
 

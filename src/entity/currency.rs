@@ -8,9 +8,9 @@ use serde::{Deserialize, Serialize};
 
 #[derive(Debug, Clone, Serialize, Deserialize)]
 pub struct Currency {
-    // 控制位
+    /// 额度控制位
     quota_info: Quota,
-    // 钱包公钥
+    /// 钱包公钥
     wallet_cert: CertificateSm2,
 }
 
