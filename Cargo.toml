@@ -14,7 +14,7 @@ rand = "0.7.3"
 dislog-hal = { git = "https://github.com/Yinet-project/dislog-hal" }
 kv-object = { git = "https://curdata-bots:SBf(TdV2yeBP@github.com/Curdata-project/KVObject" }
 asymmetric-crypto = { git ="https://github.com/Yinet-project/asymmetric-crypto" }
-chrono = { git = "https://github.com/chronotope/chrono.git" }
+chrono = "0.4.11"
 
 
 [dev-dependencies]

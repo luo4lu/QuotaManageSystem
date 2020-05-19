@@ -182,16 +182,16 @@ mod tests {
 
             let sign_bytes = quota.to_bytes(&keypair_sm2).unwrap();
 
-            println!("sigture: {:?}", sign_bytes);
+            //println!("sigture: {:?}", sign_bytes);
 
             let serialized = serde_json::to_string(&quota).unwrap();
-            println!("serialized = {}", serialized);
+            //println!("serialized = {}", serialized);
 
             let deserialized: QuotaWrapper = serde_json::from_str(&serialized).unwrap();
-            println!("deserialized = {:?}", deserialized);
+            //println!("deserialized = {:?}", deserialized);
 
             let deserialized_obj: Quota = deserialized.get_body().clone();
-            println!("deserialized_obj = {:?}", deserialized_obj);
+            //println!("deserialized_obj = {:?}", deserialized_obj);
         }
     }
 }
