@@ -5,7 +5,7 @@ use asymmetric_crypto::hasher::sha3::Sha3;
 use asymmetric_crypto::keypair::Keypair;
 use core::convert::AsRef;
 use hex::{FromHex, ToHex};
-use log::{warn, info};
+use log::{info, warn};
 use rand::thread_rng;
 use serde::{Deserialize, Serialize};
 
