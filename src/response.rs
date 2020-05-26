@@ -16,4 +16,31 @@ impl<T> ResponseBody<T> {
             data,
         }
     }
+
+    ///响应错误返回
+    pub fn new_json_parse_error() -> Self {
+        ResponseBody {
+            code: 90001,
+            message: String::from("json parse error."),
+            data: None,
+        }
+    }
+
+    ///作为文件类错误相关返回
+    pub fn new_file_error() -> Self {
+        ResponseBody {
+            code: 90002,
+            message: String::from("file open or write or read error."),
+            data: None,
+        }
+    }
+
+    ///作为字符转换相关产生的错误返回
+    pub fn new_str_conver_error() -> Self {
+        ResponseBody {
+            code: 90003,
+            message: String::from("char conversion error"),
+            data: None,
+        }
+    }
 }
