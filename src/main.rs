@@ -1,6 +1,5 @@
 use actix_web::{App, HttpServer};
 use log::Level;
-use simple_logger;
 
 mod admin_meta;
 mod admin_quota;
@@ -21,6 +20,7 @@ async fn main() -> std::io::Result<()> {
             .service(admin_meta::get_cert)
             .service(admin_quota::new_quota)
             .service(admin_quota::delete_quota)
+            .service(admin_quota::convert_quota)
     })
     .bind("127.0.0.1:8088")?
     .run()
