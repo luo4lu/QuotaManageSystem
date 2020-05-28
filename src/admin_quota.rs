@@ -217,7 +217,7 @@ pub async fn convert_quota(
     let issue = ConvertQoutaRequestWrapper::from_bytes(&deser_vec).unwrap();
 
     //验证签名
-    if issue.verfiy_kvhead().is_ok() == true {
+    if issue.verfiy_kvhead().is_ok() {
         info!("true");
     } else {
         warn!("quota issue request verfiy check failed");
