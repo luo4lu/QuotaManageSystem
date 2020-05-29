@@ -232,6 +232,19 @@ pub async fn convert_quota(
     for quota_control in inputs.iter() {
         let old_state: String = String::from("recycle");
         let id = (*quota_control.get_body().get_id()).encode_hex::<String>();
+        let select_data = conn
+            .prepare("SELECT id from quota_control_field where id = $1").await.unwrap();
+        match conn.query_one(&select_data,&[&id]).await{
+            Ok(row) => {
+                info!("{:?}",row);
+                row
+            }
+            Err(error)=>{
+                warn!("select id failed:{:?}",error);
+                return HttpResponse::Ok().json(ResponseBody::<()>::database_build_error());
+            }
+
+        };
         let delete_data = conn
             .prepare("UPDATE quota_control_field SET state = $1,update_time = now() WHERE id = $2")
             .await
