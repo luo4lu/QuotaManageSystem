@@ -43,4 +43,13 @@ impl<T> ResponseBody<T> {
             data: None,
         }
     }
+
+    ///作为数据库操作失败时返回
+    pub fn database_build_error() -> Self {
+        ResponseBody {
+            code: 90004,
+            message: String::from("Database operation failed"),
+            data: None,
+        }
+    }
 }
