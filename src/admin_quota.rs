@@ -113,17 +113,40 @@ pub async fn new_quota(
         let state: String = String::from("issued");
         let jsonb_quota = serde_json::to_value(&quota_control_field).unwrap();
         //数据库操作
-        let statement = conn
+        let statement = match conn
             .prepare(
                 "INSERT INTO quota_control_field (id, quota_control_field, explain_info, 
                 state, create_time, update_time) VALUES ($1, $2, $3, $4, now(), now())",
             )
             .await
-            .unwrap();
+        {
+            Ok(s) => {
+                info!("database command success!");
+                s
+            }
+            Err(error) => {
+                warn!("database command failed: {:?}", error);
+                return HttpResponse::Ok().json(ResponseBody::<String>::database_runing_error(
+                    Some(error.to_string()),
+                ));
+            }
+        };
 
-        conn.execute(&statement, &[&id, &vec[index], &jsonb_quota, &state])
+        match conn
+            .execute(&statement, &[&id, &vec[index], &jsonb_quota, &state])
             .await
-            .unwrap();
+        {
+            Ok(s) => {
+                info!("database parameter success!");
+                s
+            }
+            Err(error) => {
+                warn!("database parameter failed: {:?}", error);
+                return HttpResponse::Ok().json(ResponseBody::<String>::database_runing_error(
+                    Some(error.to_string()),
+                ));
+            }
+        };
     }
 
     HttpResponse::Ok().json(ResponseBody::new_success(Some(vec)))
@@ -144,14 +167,34 @@ pub async fn delete_quota(data: web::Data<Pool>, vec: web::Json<Vec<String>>) ->
         field_id.push((*quota_control_field.get_body().get_id()).encode_hex());
         //数据库命令
         let state: String = String::from("recycle");
-        let statement = conn
+        let statement = match conn
             .prepare("UPDATE quota_control_field SET state = $1 WHERE id = $2")
             .await
-            .unwrap();
+        {
+            Ok(s) => {
+                info!("database command success!");
+                s
+            }
+            Err(error) => {
+                warn!("database command failed: {:?}", error);
+                return HttpResponse::Ok().json(ResponseBody::<String>::database_runing_error(
+                    Some(error.to_string()),
+                ));
+            }
+        };
 
-        conn.execute(&statement, &[&state, &field_id[index]])
-            .await
-            .unwrap();
+        match conn.execute(&statement, &[&state, &field_id[index]]).await {
+            Ok(s) => {
+                info!("database parameter success!");
+                s
+            }
+            Err(error) => {
+                warn!("database parameter failed: {:?}", error);
+                return HttpResponse::Ok().json(ResponseBody::<String>::database_runing_error(
+                    Some(error.to_string()),
+                ));
+            }
+        };
     }
     HttpResponse::Ok().json(ResponseBody::new_success(Some(field_id)))
 }
@@ -232,10 +275,21 @@ pub async fn convert_quota(
     for quota_control in inputs.iter() {
         let old_state: String = String::from("recycle");
         let id = (*quota_control.get_body().get_id()).encode_hex::<String>();
-        let select_data = conn
+        let select_data = match conn
             .prepare("SELECT id from quota_control_field where id = $1")
             .await
-            .unwrap();
+        {
+            Ok(s) => {
+                info!("database command success!");
+                s
+            }
+            Err(error) => {
+                warn!("database command failed: {:?}", error);
+                return HttpResponse::Ok().json(ResponseBody::<String>::database_runing_error(
+                    Some(error.to_string()),
+                ));
+            }
+        };
         match conn.query_one(&select_data, &[&id]).await {
             Ok(row) => {
                 info!("{:?}", row);
@@ -246,13 +300,33 @@ pub async fn convert_quota(
                 return HttpResponse::Ok().json(ResponseBody::<()>::database_build_error());
             }
         };
-        let delete_data = conn
+        let delete_data = match conn
             .prepare("UPDATE quota_control_field SET state = $1,update_time = now() WHERE id = $2")
             .await
-            .unwrap();
-        conn.execute(&delete_data, &[&old_state, &id])
-            .await
-            .unwrap();
+        {
+            Ok(s) => {
+                info!("database command success!");
+                s
+            }
+            Err(error) => {
+                warn!("database command failed: {:?}", error);
+                return HttpResponse::Ok().json(ResponseBody::<String>::database_runing_error(
+                    Some(error.to_string()),
+                ));
+            }
+        };
+        match conn.execute(&delete_data, &[&old_state, &id]).await {
+            Ok(s) => {
+                info!("database parameter success!");
+                s
+            }
+            Err(error) => {
+                warn!("database parameter failed: {:?}", error);
+                return HttpResponse::Ok().json(ResponseBody::<String>::database_runing_error(
+                    Some(error.to_string()),
+                ));
+            }
+        };
     }
     //签名后的转换额度生成请求获取生成信息
     let quotas = match issue.get_body().convert() {
@@ -281,16 +355,39 @@ pub async fn convert_quota(
         let new_state: String = String::from("issued");
         let jsonb_quota = serde_json::to_value(&quota_control_field).unwrap();
         //插入新的数据
-        let insert_data = conn
+        let insert_data = match conn
             .prepare(
                 "INSERT INTO quota_control_field (id, quota_control_field, explain_info,
             state, create_time, update_time) VALUES ($1, $2, $3, $4, now(), now())",
             )
             .await
-            .unwrap();
-        conn.execute(&insert_data, &[&id, &vec[index], &jsonb_quota, &new_state])
+        {
+            Ok(s) => {
+                info!("database command success!");
+                s
+            }
+            Err(error) => {
+                warn!("database command failed: {:?}", error);
+                return HttpResponse::Ok().json(ResponseBody::<String>::database_runing_error(
+                    Some(error.to_string()),
+                ));
+            }
+        };
+        match conn
+            .execute(&insert_data, &[&id, &vec[index], &jsonb_quota, &new_state])
             .await
-            .unwrap();
+        {
+            Ok(s) => {
+                info!("database parameter success!");
+                s
+            }
+            Err(error) => {
+                warn!("database parameter failed: {:?}", error);
+                return HttpResponse::Ok().json(ResponseBody::<String>::database_runing_error(
+                    Some(error.to_string()),
+                ));
+            }
+        };
     }
     HttpResponse::Ok().json(ResponseBody::new_success(Some(vec)))
 }
