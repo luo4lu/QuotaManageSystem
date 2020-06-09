@@ -16,6 +16,7 @@ async fn main() -> std::io::Result<()> {
             .data(config_path::get_db())
             .data(config_path::ConfigPath::default())
             .service(admin_meta::new_cert)
+            .service(admin_meta::register_cms)
             .service(admin_meta::update_cert)
             .service(admin_meta::get_cert)
             .service(admin_quota::new_quota)
