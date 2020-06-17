@@ -1,5 +1,6 @@
 use actix_web::{App, HttpServer};
 use log::Level;
+use std::env;
 
 mod admin_meta;
 mod admin_quota;
@@ -8,6 +9,7 @@ pub mod response;
 
 #[actix_rt::main]
 async fn main() -> std::io::Result<()> {
+    let args: Vec<String> = env::args().collect();
     //Initialize the log and set the print level
     simple_logger::init_with_level(Level::Warn).unwrap();
 
@@ -23,7 +25,7 @@ async fn main() -> std::io::Result<()> {
             .service(admin_quota::delete_quota)
             .service(admin_quota::convert_quota)
     })
-    .bind("127.0.0.1:8088")?
+    .bind(&args[1])?
     .run()
     .await
 }
