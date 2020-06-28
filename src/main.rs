@@ -1,18 +1,24 @@
 use actix_web::{App, HttpServer};
-use log::Level;
-use std::env;
+use clap::ArgMatches;
 
 mod admin_meta;
 mod admin_quota;
+mod config_command;
 mod config_path;
 pub mod response;
 
 #[actix_rt::main]
 async fn main() -> std::io::Result<()> {
-    let args: Vec<String> = env::args().collect();
+    let mut _path: String = String::new();
+    let matches: ArgMatches = config_command::get_command();
+    if let Some(d) = matches.value_of("qms") {
+        _path = d.to_string();
+    } else {
+        _path = String::from("127.0.0.1:9003");
+    }
     //Initialize the log and set the print level
-    simple_logger::init_with_level(Level::Warn).unwrap();
-
+    // simple_logger::init_with_level(Level::Warn).unwrap();
+    env_logger::init();
     HttpServer::new(|| {
         App::new()
             .data(config_path::get_db())
@@ -25,7 +31,7 @@ async fn main() -> std::io::Result<()> {
             .service(admin_quota::delete_quota)
             .service(admin_quota::convert_quota)
     })
-    .bind(&args[1])?
+    .bind(_path)?
     .run()
     .await
 }
