@@ -1,6 +1,6 @@
 use crate::config_path::ConfigPath;
 use crate::response::ResponseBody;
-use actix_web::{delete, post, put, web, HttpResponse, Responder};
+use actix_web::{delete, post, put, web, HttpRequest, HttpResponse, Responder};
 use asymmetric_crypto::hasher::sha3::Sha3;
 use asymmetric_crypto::keypair;
 use asymmetric_crypto::prelude::Keypair;
@@ -33,7 +33,13 @@ pub async fn new_quota(
     data: web::Data<Pool>,
     config: web::Data<ConfigPath>,
     qstr: web::Json<NewQuota>,
+    req_head: HttpRequest,
 ) -> impl Responder {
+    //获取请求头中的uuid
+    let http_head = req_head.headers();
+    let head_value = http_head.get("X-CLOUD-USER_ID").unwrap();
+    let head_str = head_value.to_str().unwrap();
+    //随机数生成器
     let mut rng = thread_rng();
     //read file for get seed
     let mut file = match File::open(&config.meta_path).await {
@@ -116,7 +122,7 @@ pub async fn new_quota(
         let statement = match conn
             .prepare(
                 "INSERT INTO quota_control_field (id, quota_control_field, explain_info, 
-                state, create_time, update_time) VALUES ($1, $2, $3, $4, now(), now())",
+                state, cloud_user_id, create_time, update_time) VALUES ($1, $2, $3, $4, $5, now(), now())",
             )
             .await
         {
@@ -133,7 +139,10 @@ pub async fn new_quota(
         };
 
         match conn
-            .execute(&statement, &[&id, &vec[index], &jsonb_quota, &state])
+            .execute(
+                &statement,
+                &[&id, &vec[index], &jsonb_quota, &state, &head_str],
+            )
             .await
         {
             Ok(s) => {
@@ -153,8 +162,16 @@ pub async fn new_quota(
 }
 
 #[delete("/api/quota")]
-pub async fn delete_quota(data: web::Data<Pool>, vec: web::Json<Vec<String>>) -> impl Responder {
+pub async fn delete_quota(
+    data: web::Data<Pool>,
+    vec: web::Json<Vec<String>>,
+    req_head: HttpRequest,
+) -> impl Responder {
     format!("{:?}", vec);
+    //获取请求头中的uuid
+    let http_head = req_head.headers();
+    let head_value = http_head.get("X-CLOUD-USER_ID").unwrap();
+    let head_str = head_value.to_str().unwrap();
     //存储额度控制为ID
     let mut field_id: Vec<String> = Vec::new();
     //连接数据库
@@ -168,7 +185,9 @@ pub async fn delete_quota(data: web::Data<Pool>, vec: web::Json<Vec<String>>) ->
         //数据库命令
         let state: String = String::from("recycle");
         let statement = match conn
-            .prepare("UPDATE quota_control_field SET state = $1 WHERE id = $2")
+            .prepare(
+                "UPDATE quota_control_field SET state = $1 WHERE id = $2 AND cloud_user_id = $3",
+            )
             .await
         {
             Ok(s) => {
@@ -183,7 +202,10 @@ pub async fn delete_quota(data: web::Data<Pool>, vec: web::Json<Vec<String>>) ->
             }
         };
 
-        match conn.execute(&statement, &[&state, &field_id[index]]).await {
+        match conn
+            .execute(&statement, &[&state, &field_id[index], &head_str])
+            .await
+        {
             Ok(s) => {
                 info!("database parameter success!");
                 s
@@ -209,7 +231,13 @@ pub async fn convert_quota(
     data: web::Data<Pool>,
     config: web::Data<ConfigPath>,
     qstr: web::Json<ConvertQuota>,
+    req_head: HttpRequest,
 ) -> impl Responder {
+    //获取请求头中的uuid
+    let http_head = req_head.headers();
+    let head_value = http_head.get("X-CLOUD-USER_ID").unwrap();
+    let head_str = head_value.to_str().unwrap();
+    //随机数生成器
     let mut rng = thread_rng();
     //read file for get seed
     let mut file = match File::open(&config.meta_path).await {
@@ -276,7 +304,7 @@ pub async fn convert_quota(
         let old_state: String = String::from("recycle");
         let id = (*quota_control.get_body().get_id()).encode_hex::<String>();
         let select_data = match conn
-            .prepare("SELECT id from quota_control_field where id = $1")
+            .prepare("SELECT id from quota_control_field where id = $1 AND cloud_user_id = $2")
             .await
         {
             Ok(s) => {
@@ -290,7 +318,7 @@ pub async fn convert_quota(
                 ));
             }
         };
-        match conn.query_one(&select_data, &[&id]).await {
+        match conn.query_one(&select_data, &[&id, &head_str]).await {
             Ok(row) => {
                 info!("{:?}", row);
                 row
@@ -301,7 +329,7 @@ pub async fn convert_quota(
             }
         };
         let delete_data = match conn
-            .prepare("UPDATE quota_control_field SET state = $1,update_time = now() WHERE id = $2")
+            .prepare("UPDATE quota_control_field SET state = $1,update_time = now() WHERE id = $2 AND cloud_user_id = $3")
             .await
         {
             Ok(s) => {
@@ -315,7 +343,10 @@ pub async fn convert_quota(
                 ));
             }
         };
-        match conn.execute(&delete_data, &[&old_state, &id]).await {
+        match conn
+            .execute(&delete_data, &[&old_state, &id, &head_str])
+            .await
+        {
             Ok(s) => {
                 info!("database parameter success!");
                 s
@@ -358,7 +389,7 @@ pub async fn convert_quota(
         let insert_data = match conn
             .prepare(
                 "INSERT INTO quota_control_field (id, quota_control_field, explain_info,
-            state, create_time, update_time) VALUES ($1, $2, $3, $4, now(), now())",
+            state,cloud_user_id, create_time, update_time) VALUES ($1, $2, $3, $4, $5, now(), now())",
             )
             .await
         {
@@ -374,7 +405,10 @@ pub async fn convert_quota(
             }
         };
         match conn
-            .execute(&insert_data, &[&id, &vec[index], &jsonb_quota, &new_state])
+            .execute(
+                &insert_data,
+                &[&id, &vec[index], &jsonb_quota, &new_state, &head_str],
+            )
             .await
         {
             Ok(s) => {
