@@ -37,7 +37,7 @@ pub async fn new_quota(
 ) -> impl Responder {
     //获取请求头中的uuid
     let http_head = req_head.headers();
-    let head_value = http_head.get("X-CLOUD-USER_ID").unwrap();
+    let head_value = http_head.get("X-USERID").unwrap();
     let head_str = head_value.to_str().unwrap();
     //随机数生成器
     let mut rng = thread_rng();
@@ -170,7 +170,7 @@ pub async fn delete_quota(
     format!("{:?}", vec);
     //获取请求头中的uuid
     let http_head = req_head.headers();
-    let head_value = http_head.get("X-CLOUD-USER_ID").unwrap();
+    let head_value = http_head.get("X-USERID").unwrap();
     let head_str = head_value.to_str().unwrap();
     //存储额度控制为ID
     let mut field_id: Vec<String> = Vec::new();
@@ -235,7 +235,7 @@ pub async fn convert_quota(
 ) -> impl Responder {
     //获取请求头中的uuid
     let http_head = req_head.headers();
-    let head_value = http_head.get("X-CLOUD-USER_ID").unwrap();
+    let head_value = http_head.get("X-USERID").unwrap();
     let head_str = head_value.to_str().unwrap();
     //随机数生成器
     let mut rng = thread_rng();

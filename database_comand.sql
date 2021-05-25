@@ -1,4 +1,4 @@
-create database test_quotamanagesystem;
+create database quotamanagesystem;
 
 create table quota_control_field(
     id varchar(255) PRIMARY KEY NOT NULL,
